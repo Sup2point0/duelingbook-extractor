@@ -1,0 +1,8 @@
+[package]
+name = "duelingbook-extractor"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+playwright-rs = "0.7.0"
+tokio = { version = "1.48.0", features = ["full"] }
