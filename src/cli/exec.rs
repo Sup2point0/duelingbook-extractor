@@ -1,3 +1,6 @@
+use anyhow as ah;
+use serde_json as json;
+
 use crate::cli;
 use crate::extractor as xt;
 
@@ -7,19 +10,24 @@ use duelingbook_extractor as dbxt;
 pub struct Executive
 {
     cli: cli::Cli,
+    options: cli::Options,
 }
 
 impl Executive
 {
-    pub fn new(cli: cli::Cli) -> Self
+    pub fn init(cli: cli::Cli) -> anyhow::Result<Self>
     {
-        Self { cli }
+        let options = cli::Options::from_cli(cli.mode.clone())?;
+        Ok(Self { cli, options })
     }
+}
 
-    pub fn run(&self) -> anyhow::Result<()>
+impl Executive
+{
+    pub fn run(&mut self) -> ah::Result<()>
     {
         println!(".. Fetching decks data...");
-        let decks = xt::fetch::decks(&self.cli.options)?;
+        let decks = xt::fetch::decks(&self.options)?;
 
         match self.cli.mode {
             cli::Mode::JSON{..} => self.exec_json(decks)?,
@@ -39,21 +47,34 @@ impl Executive
         }
     }
 
-    fn exec_json(&self, decks: Vec<dbxt::Deck>) -> anyhow::Result<()>
+    fn exec_json(&mut self, decks: Vec<dbxt::Deck>) -> ah::Result<()>
     {
-        println!(".. Exporting data to {:?}....", self.cli.options.export_path);
+        let export = json::to_string(&decks)?;
+        self.save(export)?;
+
+        Ok(())
+    }
+
+    fn exec_csv(&self, decks: Vec<dbxt::Deck>) -> ah::Result<()>
+    {
         unimplemented!()
     }
 
-    fn exec_csv(&self, decks: Vec<dbxt::Deck>) -> anyhow::Result<()>
+    fn exec_xlsx(&self, decks: Vec<dbxt::Deck>) -> ah::Result<()>
     {
-        println!(".. Exporting data to {:?}...", self.cli.options.export_path);
         unimplemented!()
     }
+}
 
-    fn exec_xlsx(&self, decks: Vec<dbxt::Deck>) -> anyhow::Result<()>
+impl Executive
+{
+    fn save(&self, contents: String) -> ah::Result<()>
     {
-        println!(".. Exporting data to {:?}....", self.cli.options.export_path);
-        unimplemented!()
+        let path = self.options.export_path.clone();
+        println!(".. Exporting data to {:?}....", path);
+
+        std::fs::write(path, contents)?;
+
+        Ok(())
     }
 }

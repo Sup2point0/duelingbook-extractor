@@ -20,7 +20,8 @@ fn main()
 fn run() -> anyhow::Result<()>
 {
     let cli = cli::Cli::parse();
-    let exec = Executive::new(cli);
+    let mut exec = Executive::init(cli)?;
+
     exec.run()?;
 
     Ok(())

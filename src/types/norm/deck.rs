@@ -2,7 +2,7 @@ use super::Card;
 use crate::types::db::{CardData, DeckData};
 
 
-#[derive(std::fmt::Debug)]
+#[derive(serde::Serialize, std::fmt::Debug)]
 pub struct Deck
 {
     pub id:   u32,

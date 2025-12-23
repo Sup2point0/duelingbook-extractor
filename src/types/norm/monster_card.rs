@@ -1,7 +1,7 @@
 use crate::types::db::CardData;
 
 
-#[derive(std::fmt::Debug)]
+#[derive(PartialEq, serde::Serialize, std::fmt::Debug)]
 pub struct MonsterCard
 {
     pub id:      u32,
@@ -69,7 +69,7 @@ pub use monster::*;
 mod monster
 {
 
-#[derive(PartialEq, std::fmt::Debug)]
+#[derive(Copy, Clone, PartialEq, serde::Serialize, std::fmt::Debug)]
 pub enum Kind {
     NORMAL, EFFECT, RITUAL,
     FUSION, SYNCHRO, XYZ, LINK,
@@ -93,7 +93,7 @@ impl TryFrom<String> for Kind {
 }
 
 
-#[derive(std::fmt::Debug)]
+#[derive(Copy, Clone, PartialEq, serde::Serialize, std::fmt::Debug)]
 pub enum Attribute {
     LIGHT, DARK, WATER, FIRE, EARTH, WIND, DIVINE,
 }
@@ -115,7 +115,7 @@ impl TryFrom<String> for Attribute {
 }
 
 
-#[derive(std::fmt::Debug)]
+#[derive(Copy, Clone, PartialEq, serde::Serialize, std::fmt::Debug)]
 pub enum Type {
     AQUA, BEAST, BEAST_WARRIOR, CELESTIAL_WARRIOR, CYBERSE, CYBORG, DRAGON, DINOSAUR, DIVINE_BEAST, FAIRY, FIEND, FISH, GALAXY, INSECT, ILLUSION, MACHINE, MAGICAL_KNIGHT, OMEGA_PSYCHIC, PLANT, PSYCHIC, PYRO, REPTILE, ROCK, SEA_SERPENT, SPELLCASTER, THUNDER, WARRIOR, WINGED_BEAST, WYRM, ZOMBIE
 }
@@ -161,7 +161,7 @@ impl TryFrom<String> for Type {
 }
 
 
-#[derive(std::fmt::Debug)]
+#[derive(Copy, Clone, PartialEq, serde::Serialize, std::fmt::Debug)]
 pub enum Ability {
     GEMINI, SPIRIT, TOON, TUNER, UNION,
 }
@@ -198,7 +198,7 @@ pub fn try_parse_atk_def(value: String) -> anyhow::Result<Option<u16>>
 }
 
 
-#[derive(std::fmt::Debug)]
+#[derive(Copy, Clone, PartialEq, serde::Serialize, std::fmt::Debug)]
 pub enum LinkArrow {
     UP, DOWN, LEFT, RIGHT,
     UP_LEFT, UP_RIGHT, DOWN_LEFT, DOWN_RIGHT,

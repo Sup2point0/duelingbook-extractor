@@ -1,7 +1,7 @@
-use duelingbook_extractor as db;
+use duelingbook_extractor as dbxt;
 
 
-pub fn deck(data: db::DeckData) -> anyhow::Result<db::Deck>
+pub fn to_csv(data: Vec<dbxt::Deck>) -> anyhow::Result<String>
 {
     unimplemented!()
 }
