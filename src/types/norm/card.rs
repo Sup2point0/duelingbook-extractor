@@ -25,14 +25,14 @@ impl std::fmt::Display for Card
 
 impl TryFrom<CardData> for Card
 {
-    type Error = &'static str;
+    type Error = Box<dyn std::error::Error>;
 
     fn try_from(data: CardData) -> Result<Self, Self::Error> {
         match data.card_type.as_str() {
             "Monster" => Ok(Card::Monster(MonsterCard::try_from(data)?)),
             // "Spell"   => Card::Spell(SpellCard::from(data)),
             // "Trap"    => Card::Trap(TrapCard::from(data)),
-            _ => Err("Invalid card type encountered!"),
+            _ => Err(format!("Invalid card type encountered: {}", data.card_type))?,
         }
     }
 }

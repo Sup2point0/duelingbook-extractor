@@ -69,7 +69,7 @@ pub use monster::*;
 mod monster
 {
 
-#[derive(std::fmt::Debug)]
+#[derive(PartialEq, std::fmt::Debug)]
 pub enum Kind {
     NORMAL, EFFECT, RITUAL,
     FUSION, SYNCHRO, XYZ, LINK,
