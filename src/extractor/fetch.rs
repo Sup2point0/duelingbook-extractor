@@ -6,13 +6,15 @@ use tokio as tk;
 use futures::StreamExt;
 use serde_json as json;
 
+use duelingbook_extractor as db;
+
 
 const DECK_RESPONSE_START: &str = r#"{"action":"#;
 const DECK_RESPONSE_START_SUCCESS: &str = r#"{"action":"Success","#;
 
 
 #[tk::main]
-pub async fn deck(url: &str) -> Result<json::Value, Box<dyn std::error::Error>>
+pub async fn deck(url: &str) -> Result<db::DeckData, Box<dyn std::error::Error>>
 {
     let (mut browser, mut handler) = cr2o3::Browser::launch(
         cr2o3::BrowserConfig::builder().with_head().build()?
@@ -72,7 +74,7 @@ pub fn extract_log_text(event: &EventConsoleApiCalled) -> Option<json::Value>
     }
 }
 
-pub fn try_parse_deck_json(data: &json::Value) -> Result<Option<json::Value>, Box<dyn std::error::Error>>
+pub fn try_parse_deck_json(data: &json::Value) -> Result<Option<db::DeckData>, Box<dyn std::error::Error>>
 {
     match data {
         json::Value::String(text) => {

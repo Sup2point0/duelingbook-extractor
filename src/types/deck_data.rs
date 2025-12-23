@@ -1,12 +1,13 @@
 use super::Card;
 
 
+#[derive(serde::Deserialize)]
 pub struct DeckData
 {
-    id: u32,
-    name: String,
+    pub id: u32,
+    pub name: String,
 
-    main: Vec<Card>,
-    side: Vec<Card>,
-    extra: Vec<Card>,
+    pub main: Vec<Card>,
+    pub side: Vec<Card>,
+    pub extra: Vec<Card>,
 }

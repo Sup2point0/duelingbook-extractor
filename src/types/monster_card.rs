@@ -1,30 +1,31 @@
-use crate::types::CustomCard;
+use super::CustomCard;
 
 
+#[derive(serde::Deserialize)]
 pub struct MonsterCard
 {
-    id: u32,
-    name: String,
-    username: String,
+    pub id: u32,
+    pub name: String,
+    pub username: String,
 
-    is_effect: bool,
-    effect: String,
+    pub is_effect: bool,
+    pub effect: String,
 
-    level: u8,
-    attribute: String,
-    r#type: String,
-    ability: String,
+    pub level: u8,
+    pub attribute: String,
+    pub r#type: String,
+    pub ability: String,
 
-    atk: String,
-    def: String,
+    pub atk: String,
+    pub def: String,
 
-    pendulum: bool,
-    scale: u8,
-    pendulum_effect: String,
+    pub pendulum: bool,
+    pub scale: u8,
+    pub pendulum_effect: String,
 
-    arrows: String,
+    pub arrows: String,
 
-    tcg_limit: u8,
+    pub tcg_limit: u8,
 }
 
 impl CustomCard for MonsterCard
