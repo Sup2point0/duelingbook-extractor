@@ -7,16 +7,43 @@ use tokio as tk;
 use futures::StreamExt;
 use serde_json as json;
 
+use crate::*;
 use duelingbook_extractor as db;
-
-use crate::config;
 
 
 const DECK_RESPONSE_START: &str = r#"{"action":"#;
 const DECK_RESPONSE_START_SUCCESS: &str = r#"{"action":"Success","#;
 
 
-pub async fn deck(url: &str) -> anyhow::Result<db::DeckData>
+#[tk::main]
+pub async fn decks(options@Options{ urls, .. }: &Options) -> anyhow::Result<Vec<db::Deck>>
+{
+    let tasks = urls.into_iter().enumerate().map(|(i, url)| async move {
+        println!(">> exporting deck #{}", i+1);
+        let data: db::DeckData = deck(url, options).await?;
+        println!("-- received data from browser");
+        let deck = db::Deck::from(data);
+        println!(">> finished exporting deck #{}", i+1);
+
+        Ok(deck) as anyhow::Result<db::Deck>
+    });
+
+    // let go = futures::future::join_all(tasks);
+    // let results = go.await;
+    
+    let mut results = vec![];
+    for task in tasks {
+        results.push(task.await);
+    }
+
+    let decks = results.into_iter().collect::<anyhow::Result<Vec<db::Deck>>>();
+    // let decks = results.into_iter().filter_map(|r| r.ok());
+
+    decks
+}
+
+
+pub async fn deck(url: &str, options: &Options) -> anyhow::Result<db::DeckData>
 {
     let (mut browser, mut handler) = cr2o3::Browser::launch(
         cr2o3::BrowserConfig::builder().with_head().build().map_err(|e| anyhow::anyhow!(e))?
@@ -40,7 +67,7 @@ pub async fn deck(url: &str) -> anyhow::Result<db::DeckData>
         }
     });
 
-    tk::time::sleep(tk::time::Duration::from_millis(config::BROWSER_TIME)).await;
+    tk::time::sleep(tk::time::Duration::from_millis(options.browser_wait)).await;
 
     browser.close().await?;
     console_logs.await?;
