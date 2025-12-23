@@ -1,5 +1,6 @@
 use chromiumoxide::{
     self as cr2o3,
+    browser::HeadlessMode,
     cdp::js_protocol::runtime::{ConsoleApiCalledType, EventConsoleApiCalled}
 };
 use tokio as tk;
@@ -8,16 +9,18 @@ use serde_json as json;
 
 use duelingbook_extractor as db;
 
+use crate::config;
+
 
 const DECK_RESPONSE_START: &str = r#"{"action":"#;
 const DECK_RESPONSE_START_SUCCESS: &str = r#"{"action":"Success","#;
 
 
-#[tk::main]
-pub async fn deck(url: &str) -> Result<db::DeckData, Box<dyn std::error::Error>>
+pub async fn deck(url: &str) -> anyhow::Result<db::DeckData>
 {
     let (mut browser, mut handler) = cr2o3::Browser::launch(
-        cr2o3::BrowserConfig::builder().with_head().build()?
+        cr2o3::BrowserConfig::builder().with_head().build().map_err(|e| anyhow::anyhow!(e))?
+        // cr2o3::BrowserConfig::builder().headless_mode(HeadlessMode::New).build().map_err(|e| anyhow::anyhow!(e))?
     ).await?;
 
     let handle = tk::spawn(async move {
@@ -37,7 +40,7 @@ pub async fn deck(url: &str) -> Result<db::DeckData, Box<dyn std::error::Error>>
         }
     });
 
-    tk::time::sleep(tk::time::Duration::from_secs(3)).await;
+    tk::time::sleep(tk::time::Duration::from_millis(config::BROWSER_TIME)).await;
 
     browser.close().await?;
     console_logs.await?;
@@ -62,7 +65,7 @@ pub async fn deck(url: &str) -> Result<db::DeckData, Box<dyn std::error::Error>>
 
     match deck {
         Some(data) => data,
-        None       => Err("failed to find deck content")?
+        None       => Err(anyhow::anyhow!("failed to find deck content"))
     }
 }
 
@@ -74,7 +77,7 @@ pub fn extract_log_text(event: &EventConsoleApiCalled) -> Option<json::Value>
     }
 }
 
-pub fn try_parse_deck_json(data: &json::Value) -> Result<Option<db::DeckData>, Box<dyn std::error::Error>>
+pub fn try_parse_deck_json(data: &json::Value) -> anyhow::Result<Option<db::DeckData>>
 {
     match data {
         json::Value::String(text) => {
@@ -83,7 +86,10 @@ pub fn try_parse_deck_json(data: &json::Value) -> Result<Option<db::DeckData>, B
             }
 
             if !text.starts_with(DECK_RESPONSE_START_SUCCESS) {
-                Err("webpage failed to retrieve deck")?;
+                return Err(anyhow::anyhow!(
+                    "webpage failed to retrieve deck, gave response: `{}...`",
+                    text.chars().take(50).collect::<String>()
+                ));
             }
 
             let out = json::from_str(text)?;

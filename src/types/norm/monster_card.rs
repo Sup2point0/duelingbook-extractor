@@ -32,7 +32,7 @@ pub struct MonsterCard
 
 impl TryFrom<CardData> for MonsterCard
 {
-    type Error = Box<dyn std::error::Error>;
+    type Error = anyhow::Error;
 
     fn try_from(data: CardData) -> Result<Self, Self::Error>
     {
@@ -76,7 +76,7 @@ pub enum Kind {
 }
 
 impl TryFrom<String> for Kind {
-    type Error = String;
+    type Error = anyhow::Error;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         match value.as_str() {
@@ -87,7 +87,7 @@ impl TryFrom<String> for Kind {
             "Synchro" => Ok(Self::SYNCHRO),
             "Xyz"     => Ok(Self::XYZ),
             "Link"    => Ok(Self::LINK),
-            _ => Err(format!("Received invalid Monster Card Type: {value}")),
+            _ => Err(anyhow::anyhow!("Received invalid Monster Card Type: `{value}`")),
         }
     }
 }
@@ -99,7 +99,7 @@ pub enum Attribute {
 }
 
 impl TryFrom<String> for Attribute {
-    type Error = String;
+    type Error = anyhow::Error;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         match value.as_str() {
@@ -109,7 +109,7 @@ impl TryFrom<String> for Attribute {
             "FIRE"  => Ok(Self::FIRE),
             "EARTH" => Ok(Self::EARTH),
             "WIND"  => Ok(Self::WIND),
-            _ => Err(format!("Received invalid Monster Attribute: {value}")),
+            _ => Err(anyhow::anyhow!("Received invalid Monster Attribute: `{value}`")),
         }
     }
 }
@@ -117,18 +117,45 @@ impl TryFrom<String> for Attribute {
 
 #[derive(std::fmt::Debug)]
 pub enum Type {
-    CYBERSE, DRAGON, MACHINE,
+    AQUA, BEAST, BEAST_WARRIOR, CELESTIAL_WARRIOR, CYBERSE, CYBORG, DRAGON, DINOSAUR, DIVINE_BEAST, FAIRY, FIEND, FISH, GALAXY, INSECT, ILLUSION, MACHINE, MAGICAL_KNIGHT, OMEGA_PSYCHIC, PLANT, PSYCHIC, PYRO, REPTILE, ROCK, SEA_SERPENT, SPELLCASTER, THUNDER, WARRIOR, WINGED_BEAST, WYRM, ZOMBIE
 }
 
 impl TryFrom<String> for Type {
-    type Error = String;
+    type Error = anyhow::Error;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         match value.to_ascii_lowercase().as_str() {
-            "cyberse" => Ok(Self::CYBERSE),
-            "dragon"  => Ok(Self::DRAGON),
-            "machine" => Ok(Self::MACHINE),
-            _ => Err(format!("Received invalid Monster Type: {value}")),
+            "aqua"              => Ok(Self::AQUA),
+            "beast"             => Ok(Self::BEAST),
+            "beast-warrior"     => Ok(Self::BEAST_WARRIOR),
+            "celestial warrior" => Ok(Self::CELESTIAL_WARRIOR),
+            "cyberse"           => Ok(Self::CYBERSE),
+            "cyborg"            => Ok(Self::CYBORG),
+            "dragon"            => Ok(Self::DRAGON),
+            "dinosaur"          => Ok(Self::DINOSAUR),
+            "divine-beast"      => Ok(Self::DIVINE_BEAST),
+            "fairy"             => Ok(Self::FAIRY),
+            "fiend"             => Ok(Self::FIEND),
+            "fish"              => Ok(Self::FISH),
+            "galaxy"            => Ok(Self::GALAXY),
+            "insect"            => Ok(Self::INSECT),
+            "illusion"          => Ok(Self::ILLUSION),
+            "machine"           => Ok(Self::MACHINE),
+            "magical knight"    => Ok(Self::MAGICAL_KNIGHT),
+            "omega psychic"     => Ok(Self::OMEGA_PSYCHIC),
+            "plant"             => Ok(Self::PLANT),
+            "psychic"           => Ok(Self::PSYCHIC),
+            "pyro"              => Ok(Self::PYRO),
+            "reptile"           => Ok(Self::REPTILE),
+            "rock"              => Ok(Self::ROCK),
+            "sea serpent"       => Ok(Self::SEA_SERPENT),
+            "spellcaster"       => Ok(Self::SPELLCASTER),
+            "thunder"           => Ok(Self::THUNDER),
+            "warrior"           => Ok(Self::WARRIOR),
+            "winged beast"      => Ok(Self::WINGED_BEAST),
+            "wyrm"              => Ok(Self::WYRM),
+            "zombie"            => Ok(Self::ZOMBIE),
+            _ => Err(anyhow::anyhow!("Received invalid Monster Type: `{value}`")),
         }
     }
 }
@@ -140,7 +167,9 @@ pub enum Ability {
 }
 
 impl Ability {
-    pub fn try_from_many(value: String) -> Result<Vec<Self>, String> {
+    pub fn try_from_many(value: String) -> anyhow::Result<Vec<Self>> {
+        if value == "" { return Ok(vec![]); }
+        
         value.split(r#" \/ "#)
             .map(|s| Self::try_from(s.to_string()))
             .collect()
@@ -148,7 +177,7 @@ impl Ability {
 }
 
 impl TryFrom<String> for Ability {
-    type Error = String;
+    type Error = anyhow::Error;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         match value.as_str() {
@@ -157,7 +186,7 @@ impl TryFrom<String> for Ability {
             "Toon"   => Ok(Self::TOON),
             "Tuner"  => Ok(Self::TUNER),
             "Union"  => Ok(Self::UNION),
-            _ => Err(format!("Received invalid Monster Ability: {value}")),
+            _ => Err(anyhow::anyhow!("Received invalid Monster Ability: `{value}`")),
         }
     }
 }
@@ -165,11 +194,7 @@ impl TryFrom<String> for Ability {
 
 pub fn try_parse_atk_def(value: String) -> anyhow::Result<Option<u16>>
 {
-    if value == "?" {
-        Ok(None)
-    } else {
-        Ok(Some(value.parse()?))
-    }
+    if value == "?" { Ok(None) } else { Ok(Some(value.parse()?)) }
 }
 
 
@@ -180,7 +205,9 @@ pub enum LinkArrow {
 }
 
 impl LinkArrow {
-    pub fn try_from_many(value: String) -> Result<Vec<Self>, String> {
+    pub fn try_from_many(value: String) -> anyhow::Result<Vec<Self>> {
+        if value == "" { return Ok(vec![]); }
+
         let out: Vec<Self> =
             value
             .chars()
@@ -190,7 +217,7 @@ impl LinkArrow {
             .collect();
 
         if out.len() != 8 {
-            Err(format!("Received unexpected number of Link Arrows: {}", out.len()))
+            Err(anyhow::anyhow!("Received unexpected number of Link Arrows: `{}`", out.len()))
         } else {
             Ok(out)
         }
