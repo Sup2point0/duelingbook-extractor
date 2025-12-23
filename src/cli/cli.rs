@@ -1,3 +1,6 @@
+use anyhow as ah;
+
+
 const HELP_IDS:  &'static str = "List of Deck IDs";
 const HELP_URLS: &'static str = "List of Deck URLs";
 const HELP_WAIT: &'static str = "How long (in ms) the browser will wait for the page to load";
@@ -14,21 +17,26 @@ pub struct Cli
 #[derive(clap::Subcommand, Clone, std::fmt::Debug)]
 pub enum Mode
 {
+    #[command(about = "Debug command for testing")]
     DEBUG {},
 
     /* Don't mind the alignment, I have supcode DualShift in VSCode which changes it ;P */
+
+    #[command(about = "Export decks data to a .json file")]
     JSON {
         #[arg(short = 'i', long = "ids", help = HELP_IDS)]   ids: Option<Vec<u32>>,
         #[arg(short = 'u', long = "urls", help = HELP_URLS)] urls: Option<Vec<String>>,
         #[arg(value_parser = Cli::from_root)]              export_path: Option<std::path::PathBuf>,
         #[arg(long = "browser-wait", help = HELP_WAIT)]     browser_wait: Option<u64>,
     },
+    #[command(about = "Export decks data to a .csv file")]
     CSV {
         #[arg(short = 'i', long = "ids", help = HELP_IDS)]   ids: Option<Vec<u32>>,
         #[arg(short = 'u', long = "urls", help = HELP_URLS)] urls: Option<Vec<String>>,
         #[arg(value_parser = Cli::from_root)]              export_path: Option<std::path::PathBuf>,
         #[arg(long = "browser-wait", help = HELP_WAIT)]     browser_wait: Option<u64>,
     },
+    #[command(about = "Export decks data to a .xlsx file")]
     XLSX {
         #[arg(short = 'i', long = "ids", help = HELP_IDS)]   ids: Option<Vec<u32>>,
         #[arg(short = 'u', long = "urls", help = HELP_URLS)] urls: Option<Vec<String>>,
@@ -39,7 +47,7 @@ pub enum Mode
 
 impl Cli
 {
-    pub fn from_root(s: &str) -> anyhow::Result<std::path::PathBuf>
+    pub fn from_root(s: &str) -> ah::Result<std::path::PathBuf>
     {
         Ok(std::env::current_dir()?.join(s))
     }

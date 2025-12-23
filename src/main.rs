@@ -1,6 +1,8 @@
 use clap::Parser;
 
-mod cli; pub use cli::*;
+mod cli;
+pub use cli::*;
+
 mod extractor;
 
 

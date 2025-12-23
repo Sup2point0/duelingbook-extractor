@@ -1,14 +1,15 @@
+use anyhow as ah;
 use chromiumoxide::{
     self as cr2o3,
     browser::HeadlessMode,
     cdp::js_protocol::runtime::{ConsoleApiCalledType, EventConsoleApiCalled}
 };
-use tokio as tk;
 use futures::StreamExt;
 use serde_json as json;
+use tokio as tk;
 
 use crate::*;
-use duelingbook_extractor as db;
+use duelingbook_extractor as dbxt;
 
 
 const DECK_RESPONSE_START: &str = r#"{"action":"#;
@@ -16,16 +17,16 @@ const DECK_RESPONSE_START_SUCCESS: &str = r#"{"action":"Success","#;
 
 
 #[tk::main]
-pub async fn decks(options@Options{ urls, .. }: &Options) -> anyhow::Result<Vec<db::Deck>>
+pub async fn decks(options@Options{ urls, .. }: &Options) -> ah::Result<Vec<dbxt::Deck>>
 {
     let tasks = urls.into_iter().enumerate().map(|(i, url)| async move {
-        println!(">> exporting deck #{}", i+1);
-        let data: db::DeckData = deck(url, options).await?;
+        println!(".. exporting deck #{}", i+1);
+        let data: dbxt::DeckData = deck(url, options).await?;
         println!("-- received data from browser");
-        let deck = db::Deck::from(data);
-        println!(">> finished exporting deck #{}", i+1);
+        let deck = dbxt::Deck::from(data);
+        println!(".. finished exporting deck #{}", i+1);
 
-        Ok(deck) as anyhow::Result<db::Deck>
+        Ok(deck) as ah::Result<dbxt::Deck>
     });
 
     // let go = futures::future::join_all(tasks);
@@ -36,18 +37,18 @@ pub async fn decks(options@Options{ urls, .. }: &Options) -> anyhow::Result<Vec<
         results.push(task.await);
     }
 
-    let decks = results.into_iter().collect::<anyhow::Result<Vec<db::Deck>>>();
+    let decks = results.into_iter().collect::<ah::Result<Vec<dbxt::Deck>>>();
     // let decks = results.into_iter().filter_map(|r| r.ok());
 
     decks
 }
 
 
-pub async fn deck(url: &str, options: &Options) -> anyhow::Result<db::DeckData>
+pub async fn deck(url: &str, options: &Options) -> ah::Result<dbxt::DeckData>
 {
     let (mut browser, mut handler) = cr2o3::Browser::launch(
-        cr2o3::BrowserConfig::builder().with_head().build().map_err(|e| anyhow::anyhow!(e))?
-        // cr2o3::BrowserConfig::builder().headless_mode(HeadlessMode::New).build().map_err(|e| anyhow::anyhow!(e))?
+        cr2o3::BrowserConfig::builder().with_head().build().map_err(|e| ah::anyhow!(e))?
+        // cr2o3::BrowserConfig::builder().headless_mode(HeadlessMode::New).build().map_err(|e| ah::anyhow!(e))?
     ).await?;
 
     let handle = tk::spawn(async move {
@@ -92,7 +93,7 @@ pub async fn deck(url: &str, options: &Options) -> anyhow::Result<db::DeckData>
 
     match deck {
         Some(data) => data,
-        None       => Err(anyhow::anyhow!("failed to find deck content"))
+        None       => Err(ah::anyhow!("failed to find deck content"))
     }
 }
 
@@ -104,7 +105,7 @@ pub fn extract_log_text(event: &EventConsoleApiCalled) -> Option<json::Value>
     }
 }
 
-pub fn try_parse_deck_json(data: &json::Value) -> anyhow::Result<Option<db::DeckData>>
+pub fn try_parse_deck_json(data: &json::Value) -> ah::Result<Option<dbxt::DeckData>>
 {
     match data {
         json::Value::String(text) => {
@@ -113,7 +114,7 @@ pub fn try_parse_deck_json(data: &json::Value) -> anyhow::Result<Option<db::Deck
             }
 
             if !text.starts_with(DECK_RESPONSE_START_SUCCESS) {
-                return Err(anyhow::anyhow!(
+                return Err(ah::anyhow!(
                     "webpage failed to retrieve deck, gave response: `{}...`",
                     text.chars().take(50).collect::<String>()
                 ));

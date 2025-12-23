@@ -1,3 +1,5 @@
+use anyhow as ah;
+
 use super::MonsterCard;
 use crate::types::db::CardData;
 
@@ -25,14 +27,14 @@ impl std::fmt::Display for Card
 
 impl TryFrom<CardData> for Card
 {
-    type Error = anyhow::Error;
+    type Error = ah::Error;
 
     fn try_from(data: CardData) -> Result<Self, Self::Error> {
         match data.card_type.as_str() {
             "Monster" => Ok(Card::Monster(MonsterCard::try_from(data)?)),
             // "Spell"   => Card::Spell(SpellCard::from(data)),
             // "Trap"    => Card::Trap(TrapCard::from(data)),
-            _ => Err(anyhow::anyhow!("Invalid card type encountered: {}", data.card_type)),
+            _ => Err(ah::anyhow!("Invalid card type encountered: {}", data.card_type)),
         }
     }
 }

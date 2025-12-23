@@ -15,7 +15,7 @@ pub struct Executive
 
 impl Executive
 {
-    pub fn init(cli: cli::Cli) -> anyhow::Result<Self>
+    pub fn init(cli: cli::Cli) -> ah::Result<Self>
     {
         let options = cli::Options::from_cli(cli.mode.clone())?;
         Ok(Self { cli, options })

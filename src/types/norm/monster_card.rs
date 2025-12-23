@@ -1,3 +1,5 @@
+use anyhow as ah;
+
 use crate::types::db::CardData;
 
 
@@ -32,7 +34,7 @@ pub struct MonsterCard
 
 impl TryFrom<CardData> for MonsterCard
 {
-    type Error = anyhow::Error;
+    type Error = ah::Error;
 
     fn try_from(data: CardData) -> Result<Self, Self::Error>
     {
@@ -68,6 +70,8 @@ pub use monster::*;
 
 mod monster
 {
+    use anyhow as ah;
+
 
 #[derive(Copy, Clone, PartialEq, serde::Serialize, std::fmt::Debug)]
 pub enum Kind {
@@ -76,7 +80,7 @@ pub enum Kind {
 }
 
 impl TryFrom<String> for Kind {
-    type Error = anyhow::Error;
+    type Error = ah::Error;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         match value.as_str() {
@@ -87,7 +91,7 @@ impl TryFrom<String> for Kind {
             "Synchro" => Ok(Self::SYNCHRO),
             "Xyz"     => Ok(Self::XYZ),
             "Link"    => Ok(Self::LINK),
-            _ => Err(anyhow::anyhow!("Received invalid Monster Card Type: `{value}`")),
+            _ => Err(ah::anyhow!("Received invalid Monster Card Type: `{value}`")),
         }
     }
 }
@@ -99,7 +103,7 @@ pub enum Attribute {
 }
 
 impl TryFrom<String> for Attribute {
-    type Error = anyhow::Error;
+    type Error = ah::Error;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         match value.as_str() {
@@ -109,7 +113,7 @@ impl TryFrom<String> for Attribute {
             "FIRE"  => Ok(Self::FIRE),
             "EARTH" => Ok(Self::EARTH),
             "WIND"  => Ok(Self::WIND),
-            _ => Err(anyhow::anyhow!("Received invalid Monster Attribute: `{value}`")),
+            _ => Err(ah::anyhow!("Received invalid Monster Attribute: `{value}`")),
         }
     }
 }
@@ -121,7 +125,7 @@ pub enum Type {
 }
 
 impl TryFrom<String> for Type {
-    type Error = anyhow::Error;
+    type Error = ah::Error;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         match value.to_ascii_lowercase().as_str() {
@@ -155,7 +159,7 @@ impl TryFrom<String> for Type {
             "winged beast"      => Ok(Self::WINGED_BEAST),
             "wyrm"              => Ok(Self::WYRM),
             "zombie"            => Ok(Self::ZOMBIE),
-            _ => Err(anyhow::anyhow!("Received invalid Monster Type: `{value}`")),
+            _ => Err(ah::anyhow!("Received invalid Monster Type: `{value}`")),
         }
     }
 }
@@ -167,7 +171,7 @@ pub enum Ability {
 }
 
 impl Ability {
-    pub fn try_from_many(value: String) -> anyhow::Result<Vec<Self>> {
+    pub fn try_from_many(value: String) -> ah::Result<Vec<Self>> {
         if value == "" { return Ok(vec![]); }
         
         value.split(r#" \/ "#)
@@ -177,7 +181,7 @@ impl Ability {
 }
 
 impl TryFrom<String> for Ability {
-    type Error = anyhow::Error;
+    type Error = ah::Error;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         match value.as_str() {
@@ -186,13 +190,13 @@ impl TryFrom<String> for Ability {
             "Toon"   => Ok(Self::TOON),
             "Tuner"  => Ok(Self::TUNER),
             "Union"  => Ok(Self::UNION),
-            _ => Err(anyhow::anyhow!("Received invalid Monster Ability: `{value}`")),
+            _ => Err(ah::anyhow!("Received invalid Monster Ability: `{value}`")),
         }
     }
 }
 
 
-pub fn try_parse_atk_def(value: String) -> anyhow::Result<Option<u16>>
+pub fn try_parse_atk_def(value: String) -> ah::Result<Option<u16>>
 {
     if value == "?" { Ok(None) } else { Ok(Some(value.parse()?)) }
 }
@@ -205,7 +209,7 @@ pub enum LinkArrow {
 }
 
 impl LinkArrow {
-    pub fn try_from_many(value: String) -> anyhow::Result<Vec<Self>> {
+    pub fn try_from_many(value: String) -> ah::Result<Vec<Self>> {
         if value == "" { return Ok(vec![]); }
 
         let out: Vec<Self> =
@@ -217,7 +221,7 @@ impl LinkArrow {
             .collect();
 
         if out.len() != 8 {
-            Err(anyhow::anyhow!("Received unexpected number of Link Arrows: `{}`", out.len()))
+            Err(ah::anyhow!("Received unexpected number of Link Arrows: `{}`", out.len()))
         } else {
             Ok(out)
         }
@@ -234,5 +238,6 @@ const LINK_ARROWS: [LinkArrow; 8] = [
     LinkArrow::DOWN_LEFT,
     LinkArrow::LEFT,
 ];
+
 
 }

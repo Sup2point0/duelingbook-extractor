@@ -1,3 +1,5 @@
+use anyhow as ah;
+
 use crate::cli;
 
 
@@ -13,28 +15,29 @@ pub struct Options
 impl Options
 {
     pub fn init(
+        file_extension: &str,
         ids: Option<Vec<u32>>,
         urls: Option<Vec<String>>,
         export_path: Option<std::path::PathBuf>,
         browser_wait: Option<u64>,
-    ) -> anyhow::Result<Self>
+    ) -> ah::Result<Self>
     {
         Ok(Self {
             urls: ids.map(Self::urls_from_ids)
                     .unwrap_or(urls
                     .unwrap_or(defaults::urls())
                 ),
-            export_path:  export_path .unwrap_or(std::env::current_dir()?),
+            export_path:  export_path .unwrap_or(defaults::export_path()?).join(file_extension),
             browser_wait: browser_wait.unwrap_or(defaults::browser_wait()),
         })
     }
 
-    pub fn from_cli(mode: cli::Mode) -> anyhow::Result<Self> {
+    pub fn from_cli(mode: cli::Mode) -> ah::Result<Self> {
         match mode {
-            cli::Mode::JSON { ids, urls, export_path, browser_wait } => Self::init(ids, urls, export_path, browser_wait),
-            cli::Mode::CSV  { ids, urls, export_path, browser_wait } => Self::init(ids, urls, export_path, browser_wait),
-            cli::Mode::XLSX { ids, urls, export_path, browser_wait } => Self::init(ids, urls, export_path, browser_wait),
-            _                                                        => Self::init(None, None, None, None),
+            cli::Mode::JSON { ids, urls, export_path, browser_wait } => Self::init(".json", ids, urls, export_path, browser_wait),
+            cli::Mode::CSV  { ids, urls, export_path, browser_wait } => Self::init(".csv",  ids, urls, export_path, browser_wait),
+            cli::Mode::XLSX { ids, urls, export_path, browser_wait } => Self::init(".xlsx", ids, urls, export_path, browser_wait),
+            _ => Self::init("", None, None, None, None),
         }
     }
 }
@@ -52,6 +55,8 @@ impl Options
 
 mod defaults
 {
+    use anyhow as ah;
+    
     use super::Options;
 
     pub fn urls() -> Vec<String> { Options::urls_from_ids(
@@ -65,5 +70,9 @@ mod defaults
         ]
     ) }
 
+    pub fn export_path() -> ah::Result<std::path::PathBuf> {
+        Ok(std::env::current_dir()?.join("duelingbook-extractor-export"))
+    }
+    
     pub fn browser_wait() -> u64 { 2500 }
 }
