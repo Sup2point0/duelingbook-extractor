@@ -1,4 +1,5 @@
 mod extractor;
+use extractor as xt;
 
 use duelingbook_extractor as db;
 
@@ -17,15 +18,9 @@ fn main() {
 
 fn run(deck_url: &str) -> Result<(), Box<dyn std::error::Error>>
 {
-    let data: db::DeckData = extractor::fetch::deck(deck_url)?;
-    
-    for card in &data.main {
-        println!("card = {:?}", card);
-    }
-    
-    let deck: db::Deck = extractor::deserialise::deck(data)?;
+    let data: db::DeckData = xt::fetch::deck(deck_url)?;
 
-    println!("deck = {:?}", deck);
+    let deck = db::Deck::from(data);
 
     Ok(())
 }

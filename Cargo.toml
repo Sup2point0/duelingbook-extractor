@@ -3,6 +3,10 @@ name = "duelingbook-extractor"
 version = "0.1.0"
 edition = "2024"
 
+[[bin]]
+path = "src/main.rs"
+name = "dbxt"
+
 [dependencies]
 anyhow = "1.0.100"
 chromiumoxide = "0.8.0"
