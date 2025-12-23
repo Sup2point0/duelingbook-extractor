@@ -20,7 +20,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>>
     println!("got deck data");
 
     for card in deck.main {
-        println!("{card}");
+        println!("{card:?}");
     }
 
     Ok(())

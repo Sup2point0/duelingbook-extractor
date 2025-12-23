@@ -1,3 +1,6 @@
+mod card_data;
+pub use card_data::*;
+
 mod card;
 pub use card::*;
 
