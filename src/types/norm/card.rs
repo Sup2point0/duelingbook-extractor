@@ -1,7 +1,7 @@
-use crate::types::MonsterCard;
+use super::MonsterCard;
 
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, std::fmt::Debug)]
 pub enum Card
 {
     Monster(MonsterCard),

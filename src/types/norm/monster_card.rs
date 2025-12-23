@@ -1,7 +1,7 @@
 use super::CustomCard;
 
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, std::fmt::Debug)]
 pub struct MonsterCard
 {
     pub id: u32,

@@ -1,27 +1,26 @@
 mod extractor;
 
+use duelingbook_extractor as db;
+
 
 fn main() {
     println!(">> running DuelingBook extractor...");
 
-    let out = run();
+    let out = run("https://www.duelingbook.com/deck?id=18239213");
 
     match out {
-        Err(msg) => println!("{msg}"),
-        _        => (),
+        Err(msg) => println!("!! {msg}"),
+        _        => println!(".. done!"),
     };
 }
 
 
-fn run() -> Result<(), Box<dyn std::error::Error>>
+fn run(deck_url: &str) -> Result<(), Box<dyn std::error::Error>>
 {
-    let deck = extractor::fetch::deck("https://www.duelingbook.com/deck?id=18239213")?;
+    let data: db::DeckData = extractor::fetch::deck(deck_url)?;
+    let deck: db::Deck = extractor::deserialise::deck(data)?;
 
-    println!("got deck data");
-
-    for card in deck.main {
-        println!("{card:?}");
-    }
+    println!("deck = {:?}", deck);
 
     Ok(())
 }
