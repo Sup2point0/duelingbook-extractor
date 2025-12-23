@@ -44,14 +44,24 @@ pub async fn deck(url: &str) -> Result<json::Value, Box<dyn std::error::Error>>
     let mut deck = None;
 
     while let Some(content) = rx.recv().await {
-        if let Some(data) = try_parse_deck_json(&content)? {
-            println!("data = {:?}", data.to_string().truncate(20));
-            deck = Some(data);
-            break;
+        let tried = try_parse_deck_json(&content);
+        match tried {
+            Ok(Some(data)) => {
+                deck = Some(Ok(data));
+                break;
+            },
+            Err(msg) => {
+                deck = Some(Err(msg));
+                break;
+            },
+            _ => (),
         }
     }
 
-    deck.ok_or(Err("failed to find deck content")?)
+    match deck {
+        Some(data) => data,
+        None       => Err("failed to find deck content")?
+    }
 }
 
 pub fn extract_log_text(event: &EventConsoleApiCalled) -> Option<json::Value>
@@ -62,7 +72,7 @@ pub fn extract_log_text(event: &EventConsoleApiCalled) -> Option<json::Value>
     }
 }
 
-pub fn try_parse_deck_json(data: &json::Value) -> anyhow::Result<Option<json::Value>>
+pub fn try_parse_deck_json(data: &json::Value) -> Result<Option<json::Value>, Box<dyn std::error::Error>>
 {
     match data {
         json::Value::String(text) => {
@@ -71,7 +81,7 @@ pub fn try_parse_deck_json(data: &json::Value) -> anyhow::Result<Option<json::Va
             }
 
             if !text.starts_with(DECK_RESPONSE_START_SUCCESS) {
-                return Err(anyhow::anyhow!("Webpage failed to retrieve deck"));
+                Err("webpage failed to retrieve deck")?;
             }
 
             let out = json::from_str(text)?;
