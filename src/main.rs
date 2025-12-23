@@ -18,6 +18,11 @@ fn main() {
 fn run(deck_url: &str) -> Result<(), Box<dyn std::error::Error>>
 {
     let data: db::DeckData = extractor::fetch::deck(deck_url)?;
+    
+    for card in &data.main {
+        println!("card = {:?}", card);
+    }
+    
     let deck: db::Deck = extractor::deserialise::deck(data)?;
 
     println!("deck = {:?}", deck);

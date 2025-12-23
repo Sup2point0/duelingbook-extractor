@@ -1,7 +1,8 @@
 use super::MonsterCard;
+use crate::types::db::CardData;
 
 
-#[derive(serde::Deserialize, std::fmt::Debug)]
+#[derive(std::fmt::Debug)]
 pub enum Card
 {
     Monster(MonsterCard),
@@ -15,17 +16,23 @@ impl std::fmt::Display for Card
         match self {
             Card::Monster(card)
             => write!(f,
-                "Monster{{ name: {}, level: {}, type: {}, attribute: {} }}",
-                card.name, card.level, card.r#type, card.attribute
+                "Monster{{ name: {}, level: {} }}",
+                card.name, card.level
             ),
         }
     }
 }
 
-
-pub trait CustomCard
+impl TryFrom<CardData> for Card
 {
-    fn id(&self)      -> u32;
-    fn name(&self)    -> &str;
-    fn creator(&self) -> &str;
+    type Error = &'static str;
+
+    fn try_from(data: CardData) -> Result<Self, Self::Error> {
+        match data.card_type.as_str() {
+            "Monster" => Ok(Card::Monster(MonsterCard::try_from(data)?)),
+            // "Spell"   => Card::Spell(SpellCard::from(data)),
+            // "Trap"    => Card::Trap(TrapCard::from(data)),
+            _ => Err("Invalid card type encountered!"),
+        }
+    }
 }
