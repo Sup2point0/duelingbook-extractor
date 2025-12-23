@@ -27,7 +27,7 @@ impl Options
                     .unwrap_or(urls
                     .unwrap_or(defaults::urls())
                 ),
-            export_path:  export_path .unwrap_or(defaults::export_path()?).join(file_extension),
+            export_path:  export_path .unwrap_or(defaults::export_path()?).with_extension(file_extension),
             browser_wait: browser_wait.unwrap_or(defaults::browser_wait()),
         })
     }
@@ -56,7 +56,7 @@ impl Options
 mod defaults
 {
     use anyhow as ah;
-    
+
     use super::Options;
 
     pub fn urls() -> Vec<String> { Options::urls_from_ids(

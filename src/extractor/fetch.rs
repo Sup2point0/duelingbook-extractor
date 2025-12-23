@@ -49,6 +49,7 @@ pub async fn deck(url: &str, options: &Options) -> ah::Result<dbxt::DeckData>
     let (mut browser, mut handler) = cr2o3::Browser::launch(
         cr2o3::BrowserConfig::builder().with_head().build().map_err(|e| ah::anyhow!(e))?
         // cr2o3::BrowserConfig::builder().headless_mode(HeadlessMode::New).build().map_err(|e| ah::anyhow!(e))?
+        // FIXME: Not sure why headless bugs out? Could be an issue on DuelingBook's end...
     ).await?;
 
     let handle = tk::spawn(async move {

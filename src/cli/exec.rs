@@ -55,12 +55,12 @@ impl Executive
         Ok(())
     }
 
-    fn exec_csv(&self, decks: Vec<dbxt::Deck>) -> ah::Result<()>
+    fn exec_csv(&self, _decks: Vec<dbxt::Deck>) -> ah::Result<()>
     {
         unimplemented!()
     }
 
-    fn exec_xlsx(&self, decks: Vec<dbxt::Deck>) -> ah::Result<()>
+    fn exec_xlsx(&self, _decks: Vec<dbxt::Deck>) -> ah::Result<()>
     {
         unimplemented!()
     }
