@@ -4,12 +4,22 @@ use super::MonsterCard;
 use crate::types::db::CardData;
 
 
-#[derive(serde::Serialize, Debug)]
+#[derive(serde::Serialize, Clone, Debug)]
 pub enum Card
 {
     Monster(MonsterCard),
     // Spell(SpellCard),
     // Trap(TrapCard),
+}
+
+impl Card
+{
+    pub fn id(&self) -> u32
+    {
+        match self {
+            Self::Monster(card) => card.id,
+        }
+    }
 }
 
 impl std::fmt::Display for Card

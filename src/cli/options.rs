@@ -34,9 +34,9 @@ impl Options
 
     pub fn from_cli(mode: cli::Mode) -> ah::Result<Self> {
         match mode {
-            cli::Mode::JSON { ids, urls, export_path, browser_wait } => Self::init(".json", ids, urls, export_path, browser_wait),
-            cli::Mode::CSV  { ids, urls, export_path, browser_wait } => Self::init(".csv",  ids, urls, export_path, browser_wait),
-            cli::Mode::XLSX { ids, urls, export_path, browser_wait } => Self::init(".xlsx", ids, urls, export_path, browser_wait),
+            cli::Mode::JSON { ids, urls, export_path, browser_wait } => Self::init("json", ids, urls, export_path, browser_wait),
+            cli::Mode::CSV  { ids, urls, export_path, browser_wait } => Self::init("csv",  ids, urls, export_path, browser_wait),
+            cli::Mode::XLSX { ids, urls, export_path, browser_wait } => Self::init("xlsx", ids, urls, export_path, browser_wait),
             _ => Self::init("", None, None, None, None),
         }
     }

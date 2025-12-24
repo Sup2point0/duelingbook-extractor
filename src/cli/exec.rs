@@ -66,19 +66,39 @@ impl Executive
 
     fn exec_xlsx(&self, decks: Vec<dbxt::Deck>) -> ah::Result<()>
     {
+        if decks.is_empty() {
+            return Err(ah::anyhow!("No decks to export!"))
+        }
+
         let mut book = xlsx::Workbook::new();
         let sheet = book.add_worksheet();
 
         let mut row = 0;
 
-        for deck in decks {
-            for card in deck.main {
-                let data = xt::export::card_to_xlsx_row(card);
-                let data = data.into_iter().map(|(_col, val)| val);
-                sheet.write_row(row, 0, data)?;
-            }
-
+        if let Some(card) = decks[0].main.first() {
+            let data = xt::export::card_to_xlsx_row(card.clone());
+            let data = data.into_iter().map(|(col, _val)| col);
+            sheet.write_row(row, 0, data)?;
             row += 1;
+        }
+
+        for deck in decks {
+            for subdeck in [deck.main, deck.extra] {
+                let mut prev = 0;
+
+                for card in subdeck {
+                    if card.id() == prev { continue; }
+                    prev = card.id();
+
+                    let data = xt::export::card_to_xlsx_row(card);
+                    let data = data.into_iter().map(|(_col, val)| val);
+                    sheet.write_row(row, 0, data)?;
+
+                    row += 1;
+                }
+                row += 1;
+            }
+            row += 2;
         }
 
         book.save(&self.options.export_path)?;
