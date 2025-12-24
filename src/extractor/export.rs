@@ -21,7 +21,7 @@ pub fn _card_to_csv(_card: dbxt::Card) -> String
 pub enum ExcelValue {
     Text(String),
     Int(u32),
-    Blank,
+    BLANK,
 }
 
 #[duplicate::duplicate_item(int; [u8]; [u16]; [u32])]
@@ -43,7 +43,7 @@ impl worksheet::IntoExcelData for ExcelValue
         match self {
             Self::Text(val) => sheet.write_string(row, col, val),
             Self::Int(val)  => sheet.write_number(row, col, val),
-            Self::Blank     => Ok(sheet),
+            Self::BLANK     => Ok(sheet),
         }
     }
 
@@ -57,7 +57,7 @@ impl worksheet::IntoExcelData for ExcelValue
         match self {
             Self::Text(val) => sheet.write_string_with_format(row, col, val, format),
             Self::Int(val)  => sheet.write_number_with_format(row, col, val, format),
-            Self::Blank     => Ok(sheet),
+            Self::BLANK     => Ok(sheet),
         }
     }
 }
@@ -72,60 +72,70 @@ pub fn card_to_xlsx_row(card: dbxt::Card) -> Vec<(&'static str, ExcelValue)>
 {
     match card {
         dbxt::Card::Monster(data) => vec![
-            (
-                "ID",
-                ExcelValue::from(data.id)
-            ), (
-                "Card Name",
-                ExcelValue::Text(data.name)
-            ), (
-                "Kind / Property",
-                ExcelValue::Text(
-                    chain(vec![
-                        data.kind.to_string().as_str(),
-                        if data.is_pend { "Pendulum" } else { "" }
-                    ])
-                )
-            ), (
-                "Level / Rank / Link",
-                ExcelValue::from(data.level)
-            ), (
-                "Type",
-                ExcelValue::Text(data.monster_type.to_string())
-            ), (
-                "Ability",
-                ExcelValue::Text(chain(data.ability))
-            ), (
-                "Attribute",
-                ExcelValue::Text(data.attribute.to_string())
-            ), (
-                "ATK",
-                match data.atk {
-                    Some(val) => ExcelValue::from(val),
-                    None      => ExcelValue::Blank,
-                }
-            ), (
-                "DEF",
-                match data.def {
-                    Some(val) => ExcelValue::from(val),
-                    None      => ExcelValue::Blank,
-                }
-            ), (
-                "Pendulum Scale",
-                match data.pend_scale {
-                    Some(val) if data.is_pend => ExcelValue::from(val),
-                    _                         => ExcelValue::Blank,
-                }
-            ), (
-                "Link Arrows",
-                ExcelValue::Text(chain(data.link_arrows))
-            ), (
-                "Limit",
-                ExcelValue::from(data.limit)
-            ), (
-                "Text",
-                ExcelValue::Text(data.effect)
-            )
+            ( "ID",             ExcelValue::from(data.id) ),
+            ( "Card Name",      ExcelValue::Text(data.name) ),
+            ( "Card Type",      ExcelValue::Text("Monster".to_string()) ),
+            ( "Kind / Property", ExcelValue::Text(
+                                    chain(vec![
+                                        data.kind.to_string().as_str(),
+                                        if data.is_pend { "Pendulum" } else { "" }
+                                    ])
+                                )
+            ),
+            ( "Level / Rank / Link", ExcelValue::from(data.level) ),
+            ( "Type",              ExcelValue::Text(data.monster_type.to_string()) ),
+            ( "Ability",           ExcelValue::Text(chain(data.ability)) ),
+            ( "Attribute",         ExcelValue::Text(data.attribute.to_string()) ),
+            ( "ATK", match data.atk {
+                        Some(val) => ExcelValue::from(val),
+                        None      => ExcelValue::BLANK,
+                    }
+            ),
+            ( "DEF", match data.def {
+                        Some(val) => ExcelValue::from(val),
+                        None      => ExcelValue::BLANK,
+                    }
+            ),
+            ( "Pendulum Scale", match data.pend_scale {
+                                    Some(val) if data.is_pend => ExcelValue::from(val),
+                                    _                         => ExcelValue::BLANK,
+                                }
+            ),
+            ( "Link Arrows", ExcelValue::Text(chain(data.link_arrows)) ),
+            ( "Limit",       ExcelValue::from(data.limit) ),
+            ( "Text",        ExcelValue::Text(data.text) )
+        ],
+        dbxt::Card::Spell(data) => vec![
+            ( "ID",                ExcelValue::from(data.id) ),
+            ( "Card Name",         ExcelValue::Text(data.name) ),
+            ( "Card Type",         ExcelValue::Text("Spell".to_string()) ),
+            ( "Kind / Property",    ExcelValue::Text(data.property.to_string()) ),
+            ( "Level / Rank / Link", ExcelValue::BLANK ),
+            ( "Type",              ExcelValue::BLANK ),
+            ( "Ability",           ExcelValue::BLANK ),
+            ( "Attribute",         ExcelValue::BLANK ),
+            ( "ATK",               ExcelValue::BLANK ),
+            ( "DEF",               ExcelValue::BLANK ),
+            ( "Pendulum Scale",    ExcelValue::BLANK ),
+            ( "Link Arrows",       ExcelValue::BLANK ),
+            ( "Limit",             ExcelValue::BLANK ),
+            ( "Text",              ExcelValue::Text(data.effect) ),
+        ],
+        dbxt::Card::Trap(data) => vec![
+            ( "ID",                ExcelValue::from(data.id) ),
+            ( "Card Name",         ExcelValue::Text(data.name) ),
+            ( "Card Type",         ExcelValue::Text("Trap".to_string()) ),
+            ( "Kind / Property",    ExcelValue::Text(data.property.to_string()) ),
+            ( "Level / Rank / Link", ExcelValue::BLANK ),
+            ( "Type",              ExcelValue::BLANK ),
+            ( "Ability",           ExcelValue::BLANK ),
+            ( "Attribute",         ExcelValue::BLANK ),
+            ( "ATK",               ExcelValue::BLANK ),
+            ( "DEF",               ExcelValue::BLANK ),
+            ( "Pendulum Scale",    ExcelValue::BLANK ),
+            ( "Link Arrows",       ExcelValue::BLANK ),
+            ( "Limit",             ExcelValue::BLANK ),
+            ( "Text",              ExcelValue::Text(data.effect) ),
         ],
     }
 }

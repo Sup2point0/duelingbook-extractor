@@ -11,7 +11,7 @@ pub struct MonsterCard
     pub creator: String,
 
     pub is_effect: bool,
-    pub effect:    String,
+    pub text:      String,
 
     pub kind:         monster::Kind,
     pub level:        u8,
@@ -44,7 +44,7 @@ impl TryFrom<CardData> for MonsterCard
             creator: data.username,
 
             is_effect: data.is_effect > 0,
-            effect:    data.effect,
+            text:      data.effect,
 
             kind:         monster::Kind::try_from(data.monster_color)?,
             level:        data.level,

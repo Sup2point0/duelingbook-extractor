@@ -27,7 +27,7 @@ impl Executive
 {
     pub fn run(&mut self) -> ah::Result<()>
     {
-        println!(".. Fetching decks data...");
+        println!(".. fetching decks data...");
         let decks = xt::fetch::decks(&self.options)?;
 
         match self.cli.mode {
@@ -79,10 +79,14 @@ impl Executive
             let data = xt::export::card_to_xlsx_row(card.clone());
             let data = data.into_iter().map(|(col, _val)| col);
             sheet.write_row(row, 0, data)?;
-            row += 1;
+            row += 2;
         }
 
-        for deck in decks {
+        let total = decks.len();
+
+        for (i, deck) in decks.into_iter().enumerate() {
+            println!(".. exporting deck #{} of {}", i+1, total);
+
             for subdeck in [deck.main, deck.extra] {
                 let mut prev = 0;
 
@@ -98,9 +102,12 @@ impl Executive
                 }
                 row += 1;
             }
-            row += 2;
+            row += 1;
         }
 
+        sheet.autofit();
+
+        println!(".. saving to Excel file: `{:?}`", self.options.export_path);
         book.save(&self.options.export_path)?;
 
         Ok(())
@@ -112,7 +119,7 @@ impl Executive
     fn save(&self, contents: String) -> ah::Result<()>
     {
         let path = self.options.export_path.clone();
-        println!(".. Exporting data to {:?}....", path);
+        println!(".. exporting data to {:?}...", path);
 
         std::fs::write(path, contents)?;
 
