@@ -113,8 +113,8 @@ pub fn card_to_xlsx_row(card: dbxt::Card) -> Vec<(&'static str, ExcelValue)>
             ), (
                 "Pendulum Scale",
                 match data.pend_scale {
-                    Some(val) => ExcelValue::from(val),
-                    None      => ExcelValue::Blank,
+                    Some(val) if data.is_pend => ExcelValue::from(val),
+                    _                         => ExcelValue::Blank,
                 }
             ), (
                 "Link Arrows",
