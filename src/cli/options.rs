@@ -3,7 +3,7 @@ use anyhow as ah;
 use crate::cli;
 
 
-#[derive(std::fmt::Debug)]
+#[derive(Debug)]
 pub struct Options
 {
     pub urls: Vec<String>,

@@ -17,9 +17,9 @@ const DECK_RESPONSE_START_SUCCESS: &str = r#"{"action":"Success","#;
 
 
 #[tk::main]
-pub async fn decks(options@Options{ urls, .. }: &Options) -> ah::Result<Vec<dbxt::Deck>>
+pub async fn decks(options: &cli::Options) -> ah::Result<Vec<dbxt::Deck>>
 {
-    let tasks = urls.into_iter().enumerate().map(|(i, url)| async move {
+    let tasks = options.urls.iter().enumerate().map(|(i, url)| async move {
         println!(".. exporting deck #{}", i+1);
         let data: dbxt::DeckData = deck(url, options).await?;
         println!("-- received data from browser");
@@ -29,6 +29,7 @@ pub async fn decks(options@Options{ urls, .. }: &Options) -> ah::Result<Vec<dbxt
         Ok(deck) as ah::Result<dbxt::Deck>
     });
 
+    // FIXME: Running asynchronously causes issues, maybe I'm not understanding Rust's async move semantics well enough...
     // let go = futures::future::join_all(tasks);
     // let results = go.await;
     

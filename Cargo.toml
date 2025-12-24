@@ -11,7 +11,9 @@ name = "dbxt"
 anyhow = "1.0.100"
 chromiumoxide = "0.8.0"
 clap = { version = "4.5.53", features = ["derive"] }
+duplicate = "2.0.1"
 futures = "0.3.31"
+rust_xlsxwriter = "0.92.2"
 serde = "1.0.228"
 serde_json = "1.0.146"
 tokio = { version = "1.48.0", features = ["full"] }

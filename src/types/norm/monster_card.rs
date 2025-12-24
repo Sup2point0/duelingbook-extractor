@@ -3,7 +3,7 @@ use anyhow as ah;
 use crate::types::db::CardData;
 
 
-#[derive(PartialEq, serde::Serialize, std::fmt::Debug)]
+#[derive(PartialEq, serde::Serialize, Debug)]
 pub struct MonsterCard
 {
     pub id:      u32,
@@ -13,7 +13,7 @@ pub struct MonsterCard
     pub is_effect: bool,
     pub effect:    String,
 
-    pub monster_kind: monster::Kind,
+    pub kind:         monster::Kind,
     pub level:        u8,
     pub attribute:    monster::Attribute,
     pub monster_type: monster::Type,
@@ -24,7 +24,7 @@ pub struct MonsterCard
     pub def: Option<u16>,
 
     pub is_pend:     bool,
-    pub pend_scale:  u8,
+    pub pend_scale:  Option<u8>,
     pub pend_effect: String,
 
     pub link_arrows: Vec<monster::LinkArrow>,
@@ -46,7 +46,7 @@ impl TryFrom<CardData> for MonsterCard
             is_effect: data.is_effect > 0,
             effect:    data.effect,
 
-            monster_kind: monster::Kind::try_from(data.monster_color)?,
+            kind:         monster::Kind::try_from(data.monster_color)?,
             level:        data.level,
             attribute:    monster::Attribute::try_from(data.attribute)?,
             monster_type: monster::Type::try_from(data.r#type)?,
@@ -55,7 +55,7 @@ impl TryFrom<CardData> for MonsterCard
             atk:          monster::try_parse_atk_def(data.atk)?,
             def:          monster::try_parse_atk_def(data.def)?,
             is_pend:      data.pendulum > 0,
-            pend_scale:   data.scale,
+            pend_scale:   Some(data.scale),  // TODO:FIXME: How does DB indicate no scale?
             pend_effect:  data.pendulum_effect,
 
             link_arrows:  monster::LinkArrow::try_from_many(data.arrows)?,
@@ -73,7 +73,7 @@ mod monster
     use anyhow as ah;
 
 
-#[derive(Copy, Clone, PartialEq, serde::Serialize, std::fmt::Debug)]
+#[derive(Copy, Clone, PartialEq, serde::Serialize, Debug)]
 pub enum Kind {
     NORMAL, EFFECT, RITUAL,
     FUSION, SYNCHRO, XYZ, LINK,
@@ -96,8 +96,22 @@ impl TryFrom<String> for Kind {
     }
 }
 
+impl std::fmt::Display for Kind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match self {
+            Self::NORMAL  => "Normal",
+            Self::EFFECT  => "",
+            Self::RITUAL  => "Ritual",
+            Self::FUSION  => "Fusion",
+            Self::SYNCHRO => "Synchro",
+            Self::XYZ     => "Xyz",
+            Self::LINK    => "Link",
+        })
+    }
+}
 
-#[derive(Copy, Clone, PartialEq, serde::Serialize, std::fmt::Debug)]
+
+#[derive(Copy, Clone, PartialEq, serde::Serialize, Debug)]
 pub enum Attribute {
     LIGHT, DARK, WATER, FIRE, EARTH, WIND, DIVINE,
 }
@@ -118,8 +132,22 @@ impl TryFrom<String> for Attribute {
     }
 }
 
+impl std::fmt::Display for Attribute {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match self {
+            Self::LIGHT  => "LIGHT",
+            Self::DARK   => "DARK",
+            Self::WATER  => "WATER",
+            Self::FIRE   => "FIRE",
+            Self::EARTH  => "EARTH",
+            Self::WIND   => "WIND",
+            Self::DIVINE => "DIVINE",
+        })
+    }
+}
 
-#[derive(Copy, Clone, PartialEq, serde::Serialize, std::fmt::Debug)]
+
+#[derive(Copy, Clone, PartialEq, serde::Serialize, Debug)]
 pub enum Type {
     AQUA, BEAST, BEAST_WARRIOR, CELESTIAL_WARRIOR, CYBERSE, CYBORG, DRAGON, DINOSAUR, DIVINE_BEAST, FAIRY, FIEND, FISH, GALAXY, INSECT, ILLUSION, MACHINE, MAGICAL_KNIGHT, OMEGA_PSYCHIC, PLANT, PSYCHIC, PYRO, REPTILE, ROCK, SEA_SERPENT, SPELLCASTER, THUNDER, WARRIOR, WINGED_BEAST, WYRM, ZOMBIE
 }
@@ -164,8 +192,45 @@ impl TryFrom<String> for Type {
     }
 }
 
+impl std::fmt::Display for Type {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match self {
+            Self::AQUA              => "Aqua",
+            Self::BEAST             => "Beast",
+            Self::BEAST_WARRIOR     => "Beast-Warrior",
+            Self::CELESTIAL_WARRIOR => "Celestial Warrior",
+            Self::CYBERSE           => "Cyberse",
+            Self::CYBORG            => "Cyborg",
+            Self::DRAGON            => "Dragon",
+            Self::DINOSAUR          => "Dinosaur",
+            Self::DIVINE_BEAST      => "Divine-Beast",
+            Self::FAIRY             => "Fairy",
+            Self::FIEND             => "Fiend",
+            Self::FISH              => "Fish",
+            Self::GALAXY            => "Galaxy",
+            Self::INSECT            => "Insect",
+            Self::ILLUSION          => "Illusion",
+            Self::MACHINE           => "Machine",
+            Self::MAGICAL_KNIGHT    => "Magical Knight",
+            Self::OMEGA_PSYCHIC     => "Omega Psychic",
+            Self::PLANT             => "Plant",
+            Self::PSYCHIC           => "Psychic",
+            Self::PYRO              => "Pyro",
+            Self::REPTILE           => "Reptile",
+            Self::ROCK              => "Rock",
+            Self::SEA_SERPENT       => "Sea Serpent",
+            Self::SPELLCASTER       => "Spellcaster",
+            Self::THUNDER           => "Thunder",
+            Self::WARRIOR           => "Warrior",
+            Self::WINGED_BEAST      => "Winged Beast",
+            Self::WYRM              => "Wyrm",
+            Self::ZOMBIE            => "Zombie",
+        })
+    }
+}
 
-#[derive(Copy, Clone, PartialEq, serde::Serialize, std::fmt::Debug)]
+
+#[derive(Copy, Clone, PartialEq, serde::Serialize, Debug)]
 pub enum Ability {
     GEMINI, SPIRIT, TOON, TUNER, UNION,
 }
@@ -195,6 +260,18 @@ impl TryFrom<String> for Ability {
     }
 }
 
+impl std::fmt::Display for Ability {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match self {
+            Self::GEMINI => "Gemini",
+            Self::SPIRIT => "Spirit",
+            Self::TOON   => "Toon",
+            Self::TUNER  => "Tuner",
+            Self::UNION  => "Union",
+        })
+    }
+}
+
 
 pub fn try_parse_atk_def(value: String) -> ah::Result<Option<u16>>
 {
@@ -202,11 +279,22 @@ pub fn try_parse_atk_def(value: String) -> ah::Result<Option<u16>>
 }
 
 
-#[derive(Copy, Clone, PartialEq, serde::Serialize, std::fmt::Debug)]
+#[derive(Copy, Clone, PartialEq, serde::Serialize, Debug)]
 pub enum LinkArrow {
     UP, DOWN, LEFT, RIGHT,
     UP_LEFT, UP_RIGHT, DOWN_LEFT, DOWN_RIGHT,
 }
+
+const LINK_ARROWS: [LinkArrow; 8] = [
+    LinkArrow::UP_LEFT,
+    LinkArrow::UP,
+    LinkArrow::UP_RIGHT,
+    LinkArrow::RIGHT,
+    LinkArrow::DOWN_RIGHT,
+    LinkArrow::DOWN,
+    LinkArrow::DOWN_LEFT,
+    LinkArrow::LEFT,
+];
 
 impl LinkArrow {
     pub fn try_from_many(value: String) -> ah::Result<Vec<Self>> {
@@ -228,16 +316,20 @@ impl LinkArrow {
     }
 }
 
-const LINK_ARROWS: [LinkArrow; 8] = [
-    LinkArrow::UP_LEFT,
-    LinkArrow::UP,
-    LinkArrow::UP_RIGHT,
-    LinkArrow::RIGHT,
-    LinkArrow::DOWN_RIGHT,
-    LinkArrow::DOWN,
-    LinkArrow::DOWN_LEFT,
-    LinkArrow::LEFT,
-];
+impl std::fmt::Display for LinkArrow {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match self {
+            Self::UP_LEFT    => "TL",
+            Self::UP         => "T",
+            Self::UP_RIGHT   => "TR",
+            Self::RIGHT      => "R",
+            Self::DOWN_RIGHT => "DR",
+            Self::DOWN       => "D",
+            Self::DOWN_LEFT  => "DL",
+            Self::LEFT       => "L",
+        })
+    }
+}
 
 
 }

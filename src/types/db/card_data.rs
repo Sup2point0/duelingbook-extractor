@@ -2,7 +2,7 @@ type Bit = u8;
 
 
 /// A generic card's (Monster, Spell or Trap) aggregate data, which will contain many invalid fields. Deserialised from DuelingBook's database response JSON.
-#[derive(serde::Deserialize, std::fmt::Debug)]
+#[derive(serde::Deserialize, Debug)]
 pub struct CardData
 {
     /* NOTE: Field order follows DuelingBook's response JSON */

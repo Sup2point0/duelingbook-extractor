@@ -1,7 +1,7 @@
 use duelingbook_extractor as dbxt;
 
 
-#[test] fn monster_kind()
+#[test] fn kind()
 {
     assert_eq!( dbxt::Kind::try_from("Normal" .to_string()).ok(), Some(dbxt::Kind::NORMAL)  );
     assert_eq!( dbxt::Kind::try_from("Effect" .to_string()).ok(), Some(dbxt::Kind::EFFECT)  );

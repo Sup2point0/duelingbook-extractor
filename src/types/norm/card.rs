@@ -4,7 +4,7 @@ use super::MonsterCard;
 use crate::types::db::CardData;
 
 
-#[derive(serde::Serialize, std::fmt::Debug)]
+#[derive(serde::Serialize, Debug)]
 pub enum Card
 {
     Monster(MonsterCard),

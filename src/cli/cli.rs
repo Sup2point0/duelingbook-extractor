@@ -7,7 +7,7 @@ const HELP_URLS: &'static str = "List of Deck URLs";
 const HELP_WAIT: &'static str = "How long (in ms) the browser will wait for the page to load";
 
 
-#[derive(clap::Parser, std::fmt::Debug)]
+#[derive(clap::Parser, Debug)]
 #[command(version, about, long_about = None)]
 pub struct Cli
 {
@@ -15,7 +15,7 @@ pub struct Cli
     pub mode: Mode,
 }
 
-#[derive(clap::Subcommand, Clone, std::fmt::Debug)]
+#[derive(clap::Subcommand, Clone, Debug)]
 pub enum Mode
 {
     #[command(about = "Debug command for testing")]

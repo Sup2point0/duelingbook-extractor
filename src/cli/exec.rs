@@ -1,4 +1,5 @@
 use anyhow as ah;
+use rust_xlsxwriter as xlsx;
 use serde_json as json;
 
 use crate::cli;
@@ -55,14 +56,34 @@ impl Executive
         Ok(())
     }
 
-    fn exec_csv(&self, _decks: Vec<dbxt::Deck>) -> ah::Result<()>
+    fn exec_csv(&self, decks: Vec<dbxt::Deck>) -> ah::Result<()>
     {
-        unimplemented!()
+        let export = xt::export::decks_to_csv(decks);
+        self.save(export)?;
+
+        Ok(())
     }
 
-    fn exec_xlsx(&self, _decks: Vec<dbxt::Deck>) -> ah::Result<()>
+    fn exec_xlsx(&self, decks: Vec<dbxt::Deck>) -> ah::Result<()>
     {
-        unimplemented!()
+        let mut book = xlsx::Workbook::new();
+        let sheet = book.add_worksheet();
+
+        let mut row = 0;
+
+        for deck in decks {
+            for card in deck.main {
+                let data = xt::export::card_to_xlsx_row(card);
+                let data = data.into_iter().map(|(_col, val)| val);
+                sheet.write_row(row, 0, data)?;
+            }
+
+            row += 1;
+        }
+
+        book.save(&self.options.export_path)?;
+
+        Ok(())
     }
 }
 
